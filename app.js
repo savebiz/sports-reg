@@ -43,10 +43,10 @@ const SPORTS = {
 };
 
 const AGE_RANGES = {
-  "6–8":  {min:6,  max:8,  yobs:[2017,2018,2019]},
-  "9–12": {min:9,  max:12, yobs:[2013,2014,2015,2016]},
-  "13–15":{min:13, max:15, yobs:[2010,2011,2012]},
-  "16–19":{min:16, max:19, yobs:[2006,2007,2008,2009]},
+  "6–8":  {min:6,  max:8,  yobs:[2018,2019,2020]},
+  "9–12": {min:9,  max:12, yobs:[2014,2015,2016,2017]},
+  "13–15":{min:13, max:15, yobs:[2011,2012,2013]},
+  "16–19":{min:16, max:19, yobs:[2007,2008,2009,2010]},
 };
 
 // ===== TAB =====
@@ -228,18 +228,17 @@ Return ONLY valid JSON, no markdown, no explanation:
       ? [{type:'image',source:{type:'base64',media_type:file.type,data:b64.split(',')[1]}},{type:'text',text:prompt}]
       : [{type:'text',text:prompt+'\\n\\n(PDF uploaded)'}];
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    const resp = await fetch('/api/extract-nin',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:800,
-        messages:[{role:'user',content:msgContent}]
+        imageB64: b64.split(',')[1],
+        mimeType: file.type,
+        isPdf: !isImg
       })
     });
-    const data = await resp.json();
-    const raw = data.content?.map(c=>c.text||'').join('').trim();
-    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const parsed = await resp.json();
+    if (!resp.ok) throw new Error(parsed.error || 'API Error');
 
     document.getElementById('ex-nin').textContent = parsed.nin||'—';
     document.getElementById('ex-surname').textContent = parsed.surname||'—';
