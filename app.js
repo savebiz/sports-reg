@@ -226,9 +226,7 @@ Return ONLY valid JSON, no markdown, no explanation:
 
     const msgContent = isImg
       ? [{type:'image',source:{type:'base64',media_type:file.type,data:b64.split(',')[1]}},{type:'text',text:prompt}]
-      : [{type:'text',text:prompt+'
-
-(PDF uploaded)'}];
+      : [{type:'text',text:prompt+'\\n\\n(PDF uploaded)'}];
 
     const resp = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
